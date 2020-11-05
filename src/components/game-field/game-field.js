@@ -2,11 +2,6 @@ import React, {Component} from 'react';
 
 export default class GameField extends Component {
 
-  componentDidMount() {
-
-  }
-
-
   render() {
     const { squares, clickHandler } = this.props;
     return (

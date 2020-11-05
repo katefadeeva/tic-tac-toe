@@ -3,53 +3,31 @@ import React, {Component} from 'react';
 import './header.css';
 
 export default class Header extends Component {
-  state = {
-    countX: 0,
-    countO: 0
-  }
-
-  componentDidMount() {
-    const { countX, countO } = this.props;
-    this.setState({
-      countX: countX,
-      countO: countO
-    })
-  }
-
-  componentDidUpdate(prevProps) {
-    if (this.props.countX !== prevProps.countX) {
-      this.setState({
-        countX: this.props.countX
-      })
-    }
-    if (this.props.countO !== prevProps.countO) {
-      this.setState({
-        countO: this.props.countO
-      })
-    }
-  }
 
   render() {
-    const { countX, countO, draw, changeMode } = this.props;
+    const { countX, countO, draw, countComputer, countPlayer, drawComputer, changeMode } = this.props;
     return (
           <header className='header'>
             <h1>The game "TIC-TAC-toe"</h1>
-            <div className='scores p2'>
+            <div className='scores p1'>
               <p className='player1'>
                 <span className='p1'>Player</span>
                 <span className='p2'>Player 1</span>
                 (х)
-                <span className='score'>{countX}</span>
+                <span className='score p1'>{countPlayer}</span>
+                <span className='score p2'>{countX}</span>
               </p>
               <p className='draw'>
                 -
-                <span className='score'>{draw}</span>
+                <span className='score p1'>{drawComputer}</span>
+                <span className='score p2'>{draw}</span>
               </p>
               <p className='player2'>
                 <span className='p1'>Computer</span>
                 <span className='p2'>Player 2</span>
                 (o)
-                <span className='score'>{countO}</span>
+                <span className='score p1'>{countComputer}</span>
+                <span className='score p2'>{countO}</span>
               </p>
               <div className='swap' tabIndex='0' onClick={changeMode}>
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">

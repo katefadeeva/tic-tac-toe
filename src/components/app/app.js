@@ -8,6 +8,9 @@ export default class App extends Component {
     countX : 0,
     countO : 0,
     draw: 0,
+    countComputer: 0,
+    countPlayer: 0,
+    drawComputer: 0,
     squares: Array(9).fill(null),
     step: 0,
     mode: false
@@ -25,23 +28,9 @@ export default class App extends Component {
   ];
 
   isWinner = () => {
-    const { squares, step, countX, countO, draw, mode } = this.state;
+    const { squares, step, countX, countO, draw, countPlayer, countComputer, drawComputer, mode } = this.state;
     let s = (step % 2 === 0) ? 'X' : 'O';
-    if (squares.every((item) => {return item !== null})) {
-      document.querySelector('.tic-tac-toe').style.pointerEvents = 'none';
-      document.querySelector('.result').innerHTML = 'Draw! Try playing again!';
-      this.setState({
-        draw: draw + 1
-      })
-      setTimeout(() => {
-        document.querySelector('.tic-tac-toe').style.pointerEvents = 'auto';
-        document.querySelector('.result').innerHTML = 'The game is on!';
-        this.setState({
-          squares: Array(9).fill(null),
-          step: 0
-        })
-      }, 2000)
-    }
+
     for (let i = 0; i < this.winnerLine.length; i++) {
       let line = this.winnerLine[i];
       if( squares[line[0]] === s
@@ -54,23 +43,29 @@ export default class App extends Component {
 
         if (s === 'X') {
           if (mode) {
-            document.querySelector('.result').innerHTML = 'Player Won!!!';
-          } else {
             document.querySelector('.result').innerHTML = 'Player 1 Won!!!';
+            this.setState({
+              countX: countX + 1
+            })
+          } else {
+            document.querySelector('.result').innerHTML = 'Player Won!!!';
+            this.setState({
+              countPlayer: countPlayer + 1
+            })
           }
-          this.setState({
-            countX: countX + 1
-          })
+
         } else if (s === 'O') {
           if (mode) {
-            document.querySelector('.result').innerHTML = 'Computer Won! Try playing again!';
-
-          } else {
             document.querySelector('.result').innerHTML = 'Player 2 Won!!!';
+            this.setState({
+              countO: countO + 1
+            })
+          } else {
+            document.querySelector('.result').innerHTML = 'Computer Won! Try playing again!';
+            this.setState({
+              countComputer: countComputer + 1
+            })
           }
-          this.setState({
-            countO: countO + 1
-          })
         }
         setTimeout(() => {
           document.querySelector('.tic-tac-toe').style.pointerEvents = 'auto';
@@ -83,52 +78,121 @@ export default class App extends Component {
             step: 0
           })
         }, 2000)
+      } else if (squares.every(item =>  item !== null)) {
+        document.querySelector('.tic-tac-toe').style.pointerEvents = 'none';
+        document.querySelector('.result').innerHTML = 'Draw! Try playing again!';
+        if (mode) {
+          this.setState({
+            draw: draw + 1
+          })
+        } else {
+          this.setState({
+            drawComputer: drawComputer + 1
+          })
+        }
+
+        setTimeout(() => {
+          document.querySelector('.tic-tac-toe').style.pointerEvents = 'auto';
+          document.querySelector('.result').innerHTML = 'The game is on!';
+          this.setState({
+            squares: Array(9).fill(null),
+            step: 0
+          })
+        }, 2000)
       }
     }
   }
 
-  clickHandler = (event) => {
-    const { squares, step, mode } = this.state;
+
+  playerStep = (data) => {
+    const {squares, step} = this.state;
     let currentSquares = squares;
+
+    if (currentSquares[data] === null) {
+      currentSquares[data] = (step % 2 === 0) ? 'X' : 'O';
+      this.setState({
+        squares: currentSquares,
+        step: step + 1});
+    } else {
+      document.querySelector('.result').innerHTML = 'The field is already occupied!';
+    }
+  }
+
+  computerStep = () => {
+    const {squares, step} = this.state;
+    let currentSquares = squares;
+    if (currentSquares[4] === null) {
+      currentSquares[4] = 'O';
+    } else {
+      let x = 'X';
+      let o = 'O';
+
+      let arr = [];
+
+      for (let i = 0; i < this.winnerLine.length; i++) {
+        let line = this.winnerLine[i];
+        if (currentSquares[line[0]] === x && currentSquares[line[1]] === x && currentSquares[line[2]] === null) {
+          arr.push(line[2]);
+        } else if (currentSquares[line[0]] === x && currentSquares[line[2]] === x && currentSquares[line[1]] === null) {
+          arr.push(line[1]);
+        } else if (currentSquares[line[1]] === x && currentSquares[line[2]] === x && currentSquares[line[0]] === null) {
+          arr.push(line[0]);
+        } else if (currentSquares[line[0]] === o && currentSquares[line[1]] === o && currentSquares[line[2]] === null) {
+          arr.push(line[2]);
+        } else if (currentSquares[line[0]] === o && currentSquares[line[2]] === o && currentSquares[line[1]] === null) {
+          arr.push(line[1]);
+        } else if (currentSquares[line[1]] === o && currentSquares[line[2]] === o && currentSquares[line[0]] === null) {
+          arr.push(line[0]);
+        }
+      }
+
+      if (arr.length === 0) {
+        let array = [];
+        currentSquares.filter((item, index) => {
+          if (item === null) {
+            array.push(index)
+          }
+          return item === null;
+        });
+        let current = array[Math.floor(Math.random() * array.length)];
+        if (currentSquares[current] === null) {
+          currentSquares[current] = 'O';
+        } else {
+          this.isWinner();
+        }
+        array = [];
+      } else {
+        let current = arr[Math.floor(Math.random() * arr.length)];
+        if (currentSquares[current] === null) {
+          currentSquares[current] = 'O';
+        } else {
+          this.isWinner();
+        }
+      }
+      arr = [];
+    }
+
+    this.setState({
+      squares: currentSquares,
+      step: step + 2
+    });
+
+  }
+
+  clickHandler = (event) => {
+    const { mode } = this.state;
     let data = event.target.getAttribute('id');
     if (mode) {
-      if (currentSquares[data] === null) {
-        currentSquares[data] = 'X';
-        this.setState({
-          squares: currentSquares,
-          step: step + 1});
-        this.computerStep();
-      } else {
-        document.querySelector('.result').innerHTML = 'The field is already occupied!';
-      }
+      this.playerStep(data);
+
     } else {
-      if (currentSquares[data] === null) {
-        currentSquares[data] = (step % 2 === 0) ? 'X' : 'O';
-        this.setState({
-          squares: currentSquares,
-          step: step + 1});
-      } else {
-        document.querySelector('.result').innerHTML = 'The field is already occupied!';
-      }
+      this.playerStep(data);
+      this.computerStep();
     }
     this.isWinner();
   }
 
-  computerStep = () => {
-    const { squares, step } = this.state;
-    let currentSquares = squares;
-    if (currentSquares[4] === null) {
-      currentSquares[4] = 'O';
-      this.setState({
-        squares: currentSquares,
-        step: step + 1});
-    } else if (currentSquares[0] === null) {
-      currentSquares[0] = 'O';
-      this.setState({
-        squares: currentSquares,
-        step: step + 1});
-    } else {}
-  }
+
 
   changeMode = () => {
     const { mode } = this.state;
@@ -145,13 +209,16 @@ export default class App extends Component {
   }
 
   render() {
-    const {countX, countO, draw, squares, step } = this.state;
+    const {countX, countO, draw, squares, step, countComputer, countPlayer, drawComputer } = this.state;
     return (
         <React.Fragment>
           <Header
               countX={countX}
               countO={countO}
               draw={draw}
+              countComputer={countComputer}
+              countPlayer={countPlayer}
+              drawComputer={drawComputer}
               changeMode={this.changeMode}
           />
           <GameField
