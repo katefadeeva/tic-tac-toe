@@ -1,0 +1,17 @@
+
+.tic-tac-toe {
+  width: 306px;
+  margin: 0 auto;
+}
+
+.tic-tac-toe .ttt-grid {
+  width: 100px;
+  height: 100px;
+  border: 1px solid #ccc;
+  cursor: pointer;
+  text-align: center;
+  font-size: 100px;
+  line-height: 94px;
+  float: left;
+  /*box-sizing: border-box;*/
+}
